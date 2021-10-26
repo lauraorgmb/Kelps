@@ -8,19 +8,20 @@ import os
 import glob
 
 if __name__ == "__main__":
+    
+    os.chdir(r"E:\Kelp")
 
-#%% Definition of parameters
+    from tools import SAFE2band, raster2array, array2raster, get_origin
+    from index import ndvi
+    
     wd = r"E:\Kelp\Data"
     year_study = ["2018", "2021"]
     
-#%%
-    from tools import SAFE2band, raster2array
     os.chdir(wd)
-    year_list = glob.glob() 
+    year_list = glob.glob("*") 
     
     for year in year_list:
         if year in year_study:
-            print(year)
             year_fd = os.path.join(wd,year) #fd : folder
             os.chdir(year_fd)
             
@@ -32,6 +33,12 @@ if __name__ == "__main__":
                 
                 #define .SAFE path name
                 SAFE_path = os.path.join(year_fd,S2_safe)
+                granule_path = os.path.join(SAFE_path, "GRANULE")
+                os.chdir(granule_path)
+                geopos = get_origin(SAFE_path)
+
+
+#%%
                 
                 #define band path name and open raster
                 B4_20m_fn = SAFE2band(SAFE_path, "B04", "20m")
@@ -42,5 +49,18 @@ if __name__ == "__main__":
                 
                 #apply mask
                 
-                #compute index
-                ndvi = ndvi(B7_20m, B4_20m)
+                #compute index and save as TIF raster in result dir
+                ndvi_20m = ndvi(B7_20m, B4_20m)
+                
+                result_path = os.path.join(year_fd, "results")
+                
+                #define georeference parameters of the tile
+                raster_origin = (600000,4600000)
+                pixel_width = 10
+                pixel_height = 10
+                
+                if not os.exist(result_path):
+                    os.mkdir(result_path)
+                os.chdir(result_path)
+                array2raster("S2_NDVI.tif", raster_origin, pixel_width,
+                             pixel_height, ndvi_20m) 
