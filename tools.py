@@ -4,10 +4,40 @@ Spyder Editor
 
 This is a temporary script file.
 """
-
+import glob
+import os
 from osgeo import gdal, osr
 import numpy.ma as ma
 
+def SAFE2band(SAFE_path, band_nb, resolution):
+    """
+    Look for granule path name.
+
+    Parameters
+    ----------
+    SAFE_path : str
+        Path name to .SAFE folder.
+    band_nb : str
+        Number of band selected, such as "B02", "B8A", etc.
+    resolution : TYPE
+        Selected resolution (10m or 20m).
+
+    Returns
+    -------
+    granule_path : str
+        Path to selected granule.
+
+    """
+    granule_path = SAFE_path + r"/GRANULE" #go to granule path
+    os.chdir(granule_path) #work in granule path
+    list_L2A = glob.glob("L2A*") #look for folders begining by "L2A"
+    suffix = list_L2A[0] + r"/IMG_DATA/R" + resolution #precise band's suffix
+    resolution_path = os.path.join(granule_path, suffix)
+    os.chdir(resolution_path) #work in the granule path
+    band_suffix = "*" + band_nb + "_" + resolution + ".jp2"
+    band_list = glob.glob(band_suffix)
+    band_path = os.path.join(granule_path, band_list[0])
+    return band_path 
 
 def raster2array(rasterfn):
     """
@@ -66,6 +96,6 @@ def array2raster(out_fn, raster_origin, pixel_width, pixel_height, array):
     outband.WriteArray(reversed_arr)
     outband.SetNoDataValue(-9999)
     out_rasterSRS = osr.SpatialReference()
-    out_rasterSRS.ImportFromEPSG(32629)
+    out_rasterSRS.ImportFromEPSG(32629) #A CHANGER
     out_raster.SetProjection(out_rasterSRS.ExportToWkt())
     outband.FlushCache()
