@@ -26,3 +26,4 @@ os.system("conda install -c anaconda pandas")
 
 os.system("conda install -c anaconda scikit-learn")
 
+os.system("conda install -c anaconda lxml")
