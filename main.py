@@ -13,6 +13,7 @@ if __name__ == "__main__":
 
     from tools import SAFE2band, raster2array, array2raster, get_origin
     from index import ndvi
+    from lxml import etree
     
     wd = r"E:\Kelp\Data"
     year_study = ["2018", "2021"]
@@ -30,21 +31,27 @@ if __name__ == "__main__":
             print("There are %s Sentinel-2 tiles in %s."%(len(S2_list),year))
             
             for S2_safe in S2_list:
-                
                 #define .SAFE path name
                 SAFE_path = os.path.join(year_fd,S2_safe)
                 granule_path = os.path.join(SAFE_path, "GRANULE")
                 os.chdir(granule_path)
-                geopos = get_origin(SAFE_path)
-
+                list_L2A = glob.glob("L2A*") #fetch folders begining by "L2A"
+                suffix = os.path.join(list_L2A[0], "MTD_TL.xml")
+                xml_path = os.path.join(granule_path, suffix)
+                with open(xml_path) as xml_file:
+                    xml_str = xml_file.read()
+                    ULX = xml_str.find('Tile_Geocoding/Geoposition')
+                    print(ULX)
+                    # https://stackoverflow.com/questions/11351183/how-to-get-xml-tag-value-in-python
+                    # https://www.python101.pythonlibrary.org/chapter31_lxml.html
+                
 
 #%%
-                
                 #define band path name and open raster
-                B4_20m_fn = SAFE2band(SAFE_path, "B04", "20m")
+                B4_20m_fn = SAFE2band(SAFE_path, "B04", "20")
                 B4_20m = raster2array(B4_20m_fn)
                 
-                B7_20m_fn = SAFE2band(SAFE_path, "B07", "20m")
+                B7_20m_fn = SAFE2band(SAFE_path, "B07", "20")
                 B7_20m = raster2array(B7_20m_fn)
                 
                 #apply mask
@@ -63,4 +70,5 @@ if __name__ == "__main__":
                     os.mkdir(result_path)
                 os.chdir(result_path)
                 array2raster("S2_NDVI.tif", raster_origin, pixel_width,
-                             pixel_height, ndvi_20m) 
+                             pixel_height, ndvi_20m)
+                
