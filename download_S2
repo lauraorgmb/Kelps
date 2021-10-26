@@ -1,1 +1,18 @@
+"""Doc sentinelsat : https://pypi.org/project/sentinelsat/ """
+
+from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
+from datetime import date
+
+# connect to the API
+api = SentinelAPI('user', 'password', 'https://apihub.copernicus.eu/apihub')
+
+# download single scene by known product id
+api.download(<product_id>)
+
+# search by polygon, time, and Hub query keywords
 footprint = "Intersects(POLYGON((67.38264233883473 -50.21037101186643,71.7195466133247 -50.21037101186643,71.7195466133247 -47.99068066890806,67.38264233883473 -47.99068066890806,67.38264233883473 -50.21037101186643)))"
+products = api.query(footprint,
+                     date = ('20151219', date(2015, 12, 29)),
+                     platformname = 'Sentinel-2',
+                     cloudcoverpercentage = (0, 30))
+
