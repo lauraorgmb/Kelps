@@ -7,7 +7,7 @@ Created on Tue Oct 26 15:11:05 2021
 #%% CREATE NEW ENVIRONMENT
 import os
 
-os.system("conda create -n kelp")
+os.system("conda create -n kelp python=3.7")
 print("""Be careful! The script is now stopped. You have to open Anaconda 
       interface, activate via the interface Kelp environment and 
       INSTALL SPYDER! Otherwise, Gdal will not be functional.
