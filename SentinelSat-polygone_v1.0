@@ -1,0 +1,39 @@
+### SENTINELSAT-polygone v.1.0
+### Téléchargement à l'aide d'un polygone
+
+import sentinelsat
+from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
+from datetime import date
+from collections import OrderedDict
+
+
+# Connexion Copernicus
+api= SentinelAPI('christophercrovetto', 'ds.N3vwaGMiabPL', 'https://apihub.copernicus.eu/apihub')
+api
+
+
+# Emprise voulue
+footprint = 'POLYGON((68.40448532653589 -48.377026443871365,70.18925521741993 -48.52826435206106,70.83387726646158 -49.048304746760934,70.43482552181675 -50.058177241261795,68.38694459050754 -49.96518139519534,68.40448532653589 -48.377026443871365,68.40448532653589 -48.377026443871365))'
+
+
+# Images L2A pour la zone à partir de 01/01/2019 seulement
+## Antérieurement à 2019, 2 solutions:
+### Téléchargement de L1C sur PEPS + traitement MAJA sur serveur
+### Téléchargement de L1C avec SentinelSat + traitement Sen2Cor sur SNAP
+
+products = api.query(footprint, date = ('20190101','20190131'), platformname = 'Sentinel-2', processinglevel = 'Level-2A', cloudcoverpercentage = (0, 30))
+
+# Nombre de fichiers répondant à la requête
+print(len(products))
+
+download_path="F:\\Images Sat Kerguelen\\2019\\Sentinel-2"
+
+# affichage de la metadata (à titre informatif)
+products_meta = api.to_geodataframe(products)
+products_meta
+
+# tri des images selon CC (à titre informatif)
+products_meta.filter(items=['cloudcoverpercentage','title'])
+
+# télécharger dossiers d'images
+api.download_all(products,directory_path=download_path)
